@@ -643,9 +643,13 @@ table{border-collapse:collapse;width:100%}
 
 <script>
 /* ═══════════════════════════════════════════
-   STATE — all persisted in-session memory
+   STATE — persisted to localStorage
 ═══════════════════════════════════════════ */
-const STATE = {
+const STORAGE_KEY = 'antimatterai_command_hub_state';
+const STORAGE_VERSION = 1;
+
+const DEFAULT_STATE = {
+  _version: STORAGE_VERSION,
   products: [
     {
       id:'redteam', name:'Red Team ATOM Map', emoji:'🛡️',
@@ -764,6 +768,57 @@ const STATE = {
   ]
 };
 
+/* ═══════════ PERSISTENCE LAYER ═══════════ */
+function saveState() {
+  try {
+    const serializable = {
+      _version: STORAGE_VERSION,
+      products: STATE.products,
+      deals: STATE.deals,
+      investors: STATE.investors,
+      partners: STATE.partners,
+      milestones: STATE.milestones,
+      changelog: STATE.changelog,
+      activity: STATE.activity
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
+  } catch (e) {
+    console.warn('Failed to save state to localStorage:', e);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && saved._version === STORAGE_VERSION) {
+        return saved;
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to load state from localStorage:', e);
+  }
+  return null;
+}
+
+function resetState() {
+  localStorage.removeItem(STORAGE_KEY);
+  location.reload();
+}
+
+// Initialize STATE — load from localStorage or use defaults
+const saved = loadState();
+const STATE = saved ? {
+  products: saved.products,
+  deals: saved.deals,
+  investors: saved.investors,
+  partners: saved.partners,
+  milestones: saved.milestones,
+  changelog: saved.changelog,
+  activity: saved.activity
+} : JSON.parse(JSON.stringify(DEFAULT_STATE));
+
 const STAGES = ['Prospecting','Qualified','Proposal','Negotiation','Closed Won'];
 const STATUS_COLORS = {beta:'var(--yellow)',dev:'var(--orange)',ga:'var(--green)',live:'var(--cyan)'};
 const STATUS_LABELS = {beta:'Beta',dev:'In Dev',ga:'GA',live:'Live'};
@@ -792,10 +847,11 @@ function renderView(v){
 /* ═══════════ THEME TOGGLE ═══════════ */
 (function(){
   const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;
-  let d='dark'; r.setAttribute('data-theme',d);
+  let d=localStorage.getItem('antimatterai_theme')||'dark'; r.setAttribute('data-theme',d);
   if(t) t.addEventListener('click',()=>{
     d=d==='dark'?'light':'dark';
     r.setAttribute('data-theme',d);
+    localStorage.setItem('antimatterai_theme',d);
     t.innerHTML=d==='dark'?
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>':
       '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
@@ -829,6 +885,7 @@ function toast(msg,type='info'){
 function logActivity(msg,color='var(--accent)'){
   STATE.activity.unshift({msg,color,time:new Date().toLocaleTimeString()});
   updateBadges();
+  saveState();
 }
 function renderActivity(){
   const f=document.getElementById('activity-feed');
@@ -843,7 +900,7 @@ function renderActivity(){
       </div>
     </div>`).join('');
 }
-function clearActivity(){STATE.activity=[];renderActivity();toast('Activity log cleared','info');}
+function clearActivity(){STATE.activity=[];renderActivity();toast('Activity log cleared','info');saveState();}
 
 /* ═══════════ BADGES ═══════════ */
 function updateBadges(){
@@ -968,6 +1025,7 @@ function toggleIssue(productId, issueId){
   const total=p.issues.length;
   const resolved=p.issues.filter(x=>x.resolved).length;
   p.gaProgress=Math.round((resolved/total)*100);
+  saveState();
 }
 
 /* ═══════════ ROADMAP ═══════════ */
@@ -1007,6 +1065,7 @@ function toggleMilestone(id){
   logActivity(`Milestone ${m.done?'completed':'reopened'}: ${m.label}`, m.done?'var(--green)':'var(--yellow)');
   toast(`Milestone ${m.done?'completed!':'reopened'}`, m.done?'success':'warning');
   renderRoadmap();
+  saveState();
 }
 
 /* ═══════════ CHANGELOG ═══════════ */
@@ -1055,6 +1114,7 @@ function advanceDeal(id){
     logActivity(`Deal advanced: ${d.name} → ${d.stage}`, 'var(--green)');
     toast(`${d.name} → ${d.stage}`,'success');
     renderPipeline(); renderDashboard(); updateBadges();
+    saveState();
   } else { toast('Already at Closed Won!','info'); }
 }
 
@@ -1099,6 +1159,7 @@ function advanceInvestor(id){
     logActivity(`Investor status: ${i.name} → ${i.status}`,'var(--cyan)');
     toast(`${i.name} advanced to ${i.status}`,'success');
     renderInvestors(currentInvFilter); updateBadges();
+    saveState();
   } else { toast('Already at Closed!','info'); }
 }
 
@@ -1108,6 +1169,7 @@ function removeInvestor(id){
   logActivity(`Investor removed: ${i.name}`,'var(--red)');
   toast('Investor removed','warning');
   renderInvestors(currentInvFilter); updateBadges();
+  saveState();
 }
 
 /* ═══════════ PARTNERS ═══════════ */
@@ -1127,8 +1189,10 @@ function renderPartners(){
 
 function removePartner(id){
   STATE.partners=STATE.partners.filter(x=>x.id!==id);
+  logActivity(`Partner removed`,'var(--red)');
   toast('Partner removed','warning');
   renderPartners(); updateBadges();
+  saveState();
 }
 
 /* ═══════════ MODALS ═══════════ */
@@ -1188,6 +1252,7 @@ function saveIssue(){
   logActivity(`Issue added: [${p.name}] ${text.slice(0,50)}`,'var(--accent)');
   toast('Issue added!','success');
   closeModal(); renderProjects(); updateBadges();
+  saveState();
 }
 
 function openAddDealModal(){
@@ -1219,6 +1284,7 @@ function saveDeal(){
   logActivity(`New deal added: ${name} (${company})`,'var(--green)');
   toast('Deal added!','success');
   closeModal(); renderPipeline(); updateBadges();
+  saveState();
 }
 
 function openAddInvestorModal(){
@@ -1252,6 +1318,7 @@ function saveInvestor(){
   logActivity(`Investor added: ${name}`,'var(--cyan)');
   toast('Investor added!','success');
   closeModal(); renderInvestors(currentInvFilter); updateBadges();
+  saveState();
 }
 
 function openAddPartnerModal(){
@@ -1282,6 +1349,7 @@ function savePartner(){
   logActivity(`Partner added: ${name}`,'var(--purple)');
   toast('Partner added!','success');
   closeModal(); renderPartners();
+  saveState();
 }
 
 function openAddMilestoneModal(){
@@ -1308,6 +1376,7 @@ function saveMilestone(){
   logActivity(`Milestone added: ${label}`,'var(--accent)');
   toast('Milestone added!','success');
   closeModal(); renderRoadmap();
+  saveState();
 }
 
 function openAddChangelogModal(){
@@ -1337,13 +1406,19 @@ function saveChangelog(){
   logActivity(`Changelog: ${title}`,'var(--accent)');
   toast('Entry logged!','success');
   closeModal(); renderChangelog();
+  saveState();
 }
 
 /* ═══════════ INIT ═══════════ */
 function init(){
+  // Save defaults on first visit so future loads work
+  if (!loadState()) saveState();
   updateBadges();
   renderDashboard();
   if(typeof lucide!=='undefined') lucide.createIcons();
+  // Apply persisted theme
+  const savedTheme=localStorage.getItem('antimatterai_theme');
+  if(savedTheme) document.documentElement.setAttribute('data-theme',savedTheme);
 }
 init();
 </script>

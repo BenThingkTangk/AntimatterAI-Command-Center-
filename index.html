@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AntimatterAI Command Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN TOKENS — AntimatterAI Dark Tech
+═══════════════════════════════════════════ */
+:root {
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+  --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;
+  --space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;
+  --space-12:3rem;--space-16:4rem;
+  --radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;
+  --radius-xl:1rem;--radius-full:9999px;
+  --transition: 180ms cubic-bezier(0.16,1,0.3,1);
+  --font-body:'Inter','Helvetica Neue',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"] {
+  --bg:#080a0f;
+  --surface:#0d1017;
+  --surface-2:#121620;
+  --surface-3:#181d28;
+  --surface-4:#1e2433;
+  --border:rgba(99,132,255,0.1);
+  --border-bright:rgba(99,132,255,0.22);
+  --text:#e8eaf0;
+  --text-muted:#7a8299;
+  --text-faint:#3d4460;
+  --accent:#4f9cf9;
+  --accent-hover:#3b87e8;
+  --accent-glow:rgba(79,156,249,0.15);
+  --accent-glow-strong:rgba(79,156,249,0.25);
+  --cyan:#00d4d4;
+  --cyan-dim:rgba(0,212,212,0.12);
+  --green:#22c55e;
+  --green-dim:rgba(34,197,94,0.12);
+  --yellow:#f59e0b;
+  --yellow-dim:rgba(245,158,11,0.12);
+  --red:#ef4444;
+  --red-dim:rgba(239,68,68,0.12);
+  --orange:#f97316;
+  --orange-dim:rgba(249,115,22,0.12);
+  --purple:#a78bfa;
+  --purple-dim:rgba(167,139,250,0.12);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.4);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.5);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.6);
+  --sidebar-w:240px;
+}
+[data-theme="light"] {
+  --bg:#f4f5f8;
+  --surface:#ffffff;
+  --surface-2:#f8f9fb;
+  --surface-3:#eef0f5;
+  --surface-4:#e4e7ef;
+  --border:rgba(0,0,0,0.08);
+  --border-bright:rgba(0,0,0,0.15);
+  --text:#111827;
+  --text-muted:#6b7280;
+  --text-faint:#c0c4ce;
+  --accent:#2563eb;
+  --accent-hover:#1d4ed8;
+  --accent-glow:rgba(37,99,235,0.1);
+  --accent-glow-strong:rgba(37,99,235,0.2);
+  --cyan:#0891b2;
+  --cyan-dim:rgba(8,145,178,0.1);
+  --green:#16a34a;
+  --green-dim:rgba(22,163,74,0.1);
+  --yellow:#d97706;
+  --yellow-dim:rgba(217,119,6,0.1);
+  --red:#dc2626;
+  --red-dim:rgba(220,38,38,0.1);
+  --orange:#ea580c;
+  --orange-dim:rgba(234,88,12,0.1);
+  --purple:#7c3aed;
+  --purple-dim:rgba(124,58,237,0.1);
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.1);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.14);
+  --sidebar-w:240px;
+}
+
+/* ═══════════════════════════════════════════ BASE ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;scroll-behavior:smooth}
+body{min-height:100dvh;font-family:var(--font-body);font-size:var(--text-sm);color:var(--text);background:var(--bg);display:flex;overflow:hidden}
+img,svg{display:block;max-width:100%;height:auto}
+button{cursor:pointer;background:none;border:none;font:inherit;color:inherit}
+input,textarea,select{font:inherit;color:inherit;background:none;border:none;outline:none}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+table{border-collapse:collapse;width:100%}
+::selection{background:var(--accent-glow-strong);color:var(--text)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:var(--radius-sm)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:var(--radius-full)}
+::-webkit-scrollbar-thumb:hover{background:var(--text-faint)}
+
+/* ═══════════════════════════════════════════ LAYOUT ═══ */
+#sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);height:100dvh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:width var(--transition),min-width var(--transition);position:relative;z-index:10}
+#main{flex:1;height:100dvh;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+#topbar{height:56px;min-height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 var(--space-6);gap:var(--space-4);justify-content:space-between}
+#content{flex:1;overflow-y:auto;padding:var(--space-6);background:var(--bg)}
+
+/* ═══════════════════════════════════════════ SIDEBAR ═══ */
+.sidebar-header{padding:var(--space-4) var(--space-4) var(--space-3);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:var(--space-3);min-height:56px}
+.logo-mark{width:32px;height:32px;flex-shrink:0}
+.logo-text{font-size:var(--text-sm);font-weight:700;letter-spacing:-0.02em;line-height:1.2;white-space:nowrap;overflow:hidden}
+.logo-sub{font-size:var(--text-xs);color:var(--text-muted);font-weight:400}
+.nav-section{padding:var(--space-3) var(--space-2) var(--space-2)}
+.nav-label{font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-faint);padding:0 var(--space-2);margin-bottom:var(--space-1)}
+.nav-item{display:flex;align-items:center;gap:var(--space-3);padding:var(--space-2) var(--space-3);border-radius:var(--radius-md);cursor:pointer;color:var(--text-muted);font-size:var(--text-sm);font-weight:500;transition:all var(--transition);position:relative;white-space:nowrap;overflow:hidden;user-select:none}
+.nav-item:hover{background:var(--surface-3);color:var(--text)}
+.nav-item.active{background:var(--accent-glow);color:var(--accent)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:var(--radius-full);background:var(--red-dim);color:var(--red)}
+.nav-badge.blue{background:var(--accent-glow);color:var(--accent)}
+.sidebar-footer{margin-top:auto;padding:var(--space-4);border-top:1px solid var(--border)}
+.user-card{display:flex;align-items:center;gap:var(--space-3)}
+.user-avatar{width:32px;height:32px;border-radius:var(--radius-full);background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:var(--text-xs);font-weight:700;color:#fff;flex-shrink:0}
+.user-name{font-size:var(--text-sm);font-weight:600;line-height:1.3}
+.user-role{font-size:var(--text-xs);color:var(--text-muted)}
+
+/* ═══════════════════════════════════════════ TOPBAR ═══ */
+.topbar-left{display:flex;align-items:center;gap:var(--space-3)}
+.page-title{font-size:var(--text-base);font-weight:600;letter-spacing:-0.01em}
+.page-subtitle{font-size:var(--text-xs);color:var(--text-muted)}
+.topbar-right{display:flex;align-items:center;gap:var(--space-2)}
+.icon-btn{width:36px;height:36px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;color:var(--text-muted);transition:all var(--transition)}
+.icon-btn:hover{background:var(--surface-3);color:var(--text)}
+.icon-btn svg{width:18px;height:18px}
+.alert-banner{background:var(--yellow-dim);border:1px solid rgba(245,158,11,0.3);color:var(--yellow);border-radius:var(--radius-md);padding:var(--space-2) var(--space-4);font-size:var(--text-xs);font-weight:600;display:flex;align-items:center;gap:var(--space-2);cursor:pointer}
+.alert-banner svg{width:14px;height:14px;flex-shrink:0}
+
+/* ═══════════════════════════════════════════ VIEWS ═══ */
+.view{display:none}
+.view.active{display:block}
+
+/* ═══════════════════════════════════════════ COMPONENTS ═══ */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-5)}
+.section-title{font-size:var(--text-base);font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:var(--space-2)}
+.section-title svg{width:18px;height:18px;color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-4);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;cursor:pointer;transition:all var(--transition);border:none;white-space:nowrap}
+.btn svg{width:14px;height:14px}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover);box-shadow:0 0 20px var(--accent-glow-strong)}
+.btn-secondary{background:var(--surface-3);color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface-4);border-color:var(--border-bright)}
+.btn-sm{padding:var(--space-1) var(--space-3);font-size:var(--text-xs)}
+.btn-ghost{color:var(--text-muted);padding:var(--space-2) var(--space-3)}
+.btn-ghost:hover{background:var(--surface-3);color:var(--text)}
+.btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
+.btn-danger:hover{background:rgba(239,68,68,0.2)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-5);transition:border-color var(--transition),box-shadow var(--transition)}
+.card:hover{border-color:var(--border-bright)}
+.card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:var(--space-4);gap:var(--space-3)}
+.card-title{font-size:var(--text-sm);font-weight:700;letter-spacing:-0.01em}
+.card-meta{font-size:var(--text-xs);color:var(--text-muted);margin-top:2px}
+
+.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--radius-full);font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.badge-green{background:var(--green-dim);color:var(--green)}
+.badge-yellow{background:var(--yellow-dim);color:var(--yellow)}
+.badge-red{background:var(--red-dim);color:var(--red)}
+.badge-blue{background:var(--accent-glow);color:var(--accent)}
+.badge-cyan{background:var(--cyan-dim);color:var(--cyan)}
+.badge-orange{background:var(--orange-dim);color:var(--orange)}
+.badge-purple{background:var(--purple-dim);color:var(--purple)}
+.badge-gray{background:var(--surface-3);color:var(--text-muted)}
+
+.progress-bar{height:6px;background:var(--surface-3);border-radius:var(--radius-full);overflow:hidden;margin:var(--space-2) 0}
+.progress-fill{height:100%;border-radius:var(--radius-full);transition:width 0.6s cubic-bezier(0.16,1,0.3,1)}
+
+.divider{height:1px;background:var(--border);margin:var(--space-4) 0}
+
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:var(--space-4);margin-bottom:var(--space-6)}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-5);transition:all var(--transition)}
+.kpi-card:hover{border-color:var(--border-bright);box-shadow:var(--shadow-sm)}
+.kpi-label{font-size:var(--text-xs);color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-2)}
+.kpi-value{font-size:var(--text-xl);font-weight:700;letter-spacing:-0.03em;line-height:1;font-variant-numeric:tabular-nums}
+.kpi-sub{font-size:var(--text-xs);color:var(--text-muted);margin-top:var(--space-1)}
+
+/* Issue items */
+.issue-item{display:flex;align-items:flex-start;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--border)}
+.issue-item:last-child{border-bottom:none}
+.issue-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--border-bright);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-top:1px;transition:all var(--transition)}
+.issue-check:hover{border-color:var(--accent)}
+.issue-check.checked{background:var(--green);border-color:var(--green)}
+.issue-check.checked svg{display:block}
+.issue-check svg{display:none;width:11px;height:11px;color:#fff}
+.issue-text{flex:1;font-size:var(--text-sm);line-height:1.5}
+.issue-text.resolved{text-decoration:line-through;color:var(--text-muted)}
+.issue-priority{font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--radius-full);flex-shrink:0;margin-top:2px}
+.pri-critical{background:var(--red-dim);color:var(--red)}
+.pri-high{background:var(--orange-dim);color:var(--orange)}
+.pri-medium{background:var(--yellow-dim);color:var(--yellow)}
+.pri-low{background:var(--surface-3);color:var(--text-muted)}
+.pri-question{background:var(--cyan-dim);color:var(--cyan)}
+
+/* Project grid */
+.project-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:var(--space-5)}
+
+/* Pipeline */
+.pipeline-board{display:grid;grid-template-columns:repeat(5,1fr);gap:var(--space-4);overflow-x:auto;padding-bottom:var(--space-2)}
+.pipeline-col{min-width:200px}
+.pipeline-col-header{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);margin-bottom:var(--space-3);display:flex;align-items:center;justify-content:space-between}
+.pipeline-count{background:var(--surface-3);color:var(--text-muted);font-size:10px;padding:1px 6px;border-radius:var(--radius-full)}
+.deal-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3);margin-bottom:var(--space-2);cursor:pointer;transition:all var(--transition)}
+.deal-card:hover{border-color:var(--border-bright);box-shadow:var(--shadow-sm);transform:translateY(-1px)}
+.deal-name{font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)}
+.deal-meta{font-size:var(--text-xs);color:var(--text-muted)}
+.deal-value{font-size:var(--text-xs);font-weight:700;color:var(--green);margin-top:var(--space-2);font-family:var(--font-mono)}
+
+/* Investor table */
+.inv-table{width:100%}
+.inv-table th{font-size:var(--text-xs);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);padding:var(--space-3) var(--space-4);text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+.inv-table td{padding:var(--space-3) var(--space-4);border-bottom:1px solid var(--border);font-size:var(--text-sm);vertical-align:middle}
+.inv-table tr:last-child td{border-bottom:none}
+.inv-table tr:hover td{background:var(--surface-2)}
+
+/* Tab filters */
+.tab-bar{display:flex;gap:2px;background:var(--surface-3);padding:3px;border-radius:var(--radius-md);width:fit-content;margin-bottom:var(--space-5)}
+.tab-btn{padding:var(--space-2) var(--space-4);border-radius:calc(var(--radius-md) - 2px);font-size:var(--text-xs);font-weight:600;cursor:pointer;transition:all var(--transition);color:var(--text-muted);border:none;background:none}
+.tab-btn.active{background:var(--surface);color:var(--text);box-shadow:var(--shadow-sm)}
+.tab-btn:hover:not(.active){color:var(--text)}
+
+/* Activity feed */
+.activity-item{display:flex;gap:var(--space-3);padding:var(--space-3) 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:6px}
+.activity-content{flex:1}
+.activity-msg{font-size:var(--text-sm);line-height:1.5}
+.activity-time{font-size:var(--text-xs);color:var(--text-muted);margin-top:2px;font-family:var(--font-mono)}
+
+/* Input fields */
+.field{display:flex;flex-direction:column;gap:var(--space-2)}
+.field label{font-size:var(--text-xs);font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em}
+.input{background:var(--surface-3);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-3) var(--space-4);font-size:var(--text-sm);color:var(--text);width:100%;transition:border-color var(--transition)}
+.input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.input::placeholder{color:var(--text-faint)}
+.select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a8299' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:var(--space-8)}
+
+/* Toast */
+#toast-container{position:fixed;bottom:var(--space-6);right:var(--space-6);z-index:1000;display:flex;flex-direction:column;gap:var(--space-2);pointer-events:none}
+.toast{background:var(--surface-2);border:1px solid var(--border-bright);border-radius:var(--radius-lg);padding:var(--space-3) var(--space-5);font-size:var(--text-sm);font-weight:500;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:var(--space-3);min-width:280px;animation:slideIn 0.3s cubic-bezier(0.16,1,0.3,1) forwards;pointer-events:all}
+.toast.out{animation:slideOut 0.25s ease-in forwards}
+.toast svg{width:16px;height:16px;flex-shrink:0}
+.toast-success{border-color:rgba(34,197,94,0.3);color:var(--green)}
+.toast-info{border-color:rgba(79,156,249,0.3);color:var(--accent)}
+.toast-warning{border-color:rgba(245,158,11,0.3);color:var(--yellow)}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes slideOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}
+
+/* Modal */
+#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:500;display:none;align-items:center;justify-content:center;padding:var(--space-6)}
+#modal-overlay.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border-bright);border-radius:var(--radius-xl);padding:var(--space-8);width:100%;max-width:520px;max-height:80vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-6)}
+.modal-title{font-size:var(--text-base);font-weight:700}
+.modal-close{color:var(--text-muted);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-md);transition:all var(--transition)}
+.modal-close:hover{background:var(--surface-3);color:var(--text)}
+.modal-form{display:flex;flex-direction:column;gap:var(--space-4)}
+.modal-actions{display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-6)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
+
+/* Urgency notice */
+.urgency-card{background:linear-gradient(135deg,var(--yellow-dim),transparent);border:1px solid rgba(245,158,11,0.3);border-radius:var(--radius-lg);padding:var(--space-4) var(--space-5);margin-bottom:var(--space-5);display:flex;align-items:flex-start;gap:var(--space-3)}
+.urgency-card svg{width:20px;height:20px;color:var(--yellow);flex-shrink:0;margin-top:2px}
+.urgency-title{font-size:var(--text-sm);font-weight:700;color:var(--yellow);margin-bottom:var(--space-1)}
+.urgency-body{font-size:var(--text-sm);color:var(--text-muted);line-height:1.6}
+
+/* Link pill */
+.link-pill{display:inline-flex;align-items:center;gap:var(--space-2);padding:var(--space-2) var(--space-3);background:var(--accent-glow);border:1px solid rgba(79,156,249,0.2);border-radius:var(--radius-md);font-size:var(--text-xs);font-weight:600;color:var(--accent);transition:all var(--transition)}
+.link-pill:hover{background:var(--accent-glow-strong);border-color:rgba(79,156,249,0.4)}
+.link-pill svg{width:12px;height:12px}
+
+/* Changelog */
+.changelog-entry{display:flex;gap:var(--space-4);padding:var(--space-4) 0;border-bottom:1px solid var(--border)}
+.changelog-entry:last-child{border-bottom:none}
+.changelog-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px;border:2px solid var(--surface)}
+.changelog-version{font-size:var(--text-xs);font-weight:700;font-family:var(--font-mono);color:var(--accent);width:60px;flex-shrink:0;padding-top:2px}
+.changelog-content{flex:1}
+.changelog-title{font-size:var(--text-sm);font-weight:600;margin-bottom:var(--space-1)}
+.changelog-date{font-size:var(--text-xs);color:var(--text-muted);font-family:var(--font-mono)}
+
+/* Roadmap */
+.milestone-item{display:flex;align-items:center;gap:var(--space-4);padding:var(--space-3);border-radius:var(--radius-md);border:1px solid var(--border);margin-bottom:var(--space-2);transition:all var(--transition);background:var(--surface);cursor:pointer}
+.milestone-item:hover{border-color:var(--border-bright);box-shadow:var(--shadow-sm)}
+.milestone-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--border-bright);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--transition)}
+.milestone-check.done{background:var(--green);border-color:var(--green)}
+.milestone-check.done svg{display:block;width:11px;height:11px;color:#fff}
+.milestone-check svg{display:none}
+.milestone-label{flex:1;font-size:var(--text-sm);font-weight:500}
+.milestone-date{font-size:var(--text-xs);color:var(--text-muted);font-family:var(--font-mono);white-space:nowrap}
+
+/* Responsive sidebar collapse */
+@media(max-width:900px){
+  #sidebar{position:fixed;left:0;top:0;height:100dvh;transform:translateX(-100%);transition:transform var(--transition);z-index:50}
+  #sidebar.open{transform:translateX(0)}
+  #main{width:100%}
+  .pipeline-board{grid-template-columns:repeat(2,minmax(180px,1fr))}
+}
+
+/* Pulse animation for active indicators */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.pulse{animation:pulse 2s infinite}
+
+/* Number animation */
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.count-anim{animation:countUp 0.5s cubic-bezier(0.16,1,0.3,1) forwards}
+
+/* Sprint chart */
+.sprint-bar-wrap{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-2)}
+.sprint-label{font-size:var(--text-xs);color:var(--text-muted);width:100px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sprint-bar{flex:1;height:8px;background:var(--surface-3);border-radius:var(--radius-full);overflow:hidden}
+.sprint-bar-fill{height:100%;border-radius:var(--radius-full)}
+.sprint-pct{font-size:var(--text-xs);font-family:var(--font-mono);color:var(--text-muted);width:32px;text-align:right;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav id="sidebar" aria-label="Main navigation">
+  <div class="sidebar-header">
+    <svg class="logo-mark" viewBox="0 0 32 32" fill="none" aria-label="AntimatterAI logo">
+      <circle cx="16" cy="16" r="15" stroke="#4f9cf9" stroke-width="1.5" opacity="0.4"/>
+      <circle cx="16" cy="16" r="10" stroke="#4f9cf9" stroke-width="1"/>
+      <ellipse cx="16" cy="16" rx="10" ry="4" stroke="#00d4d4" stroke-width="1" transform="rotate(40 16 16)"/>
+      <ellipse cx="16" cy="16" rx="10" ry="4" stroke="#4f9cf9" stroke-width="0.8" opacity="0.5" transform="rotate(-40 16 16)"/>
+      <circle cx="16" cy="16" r="3" fill="#4f9cf9"/>
+      <circle cx="16" cy="6" r="1.5" fill="#00d4d4"/>
+      <circle cx="24.6" cy="21" r="1.5" fill="#4f9cf9" opacity="0.7"/>
+      <circle cx="7.4" cy="21" r="1.5" fill="#4f9cf9" opacity="0.7"/>
+    </svg>
+    <div class="logo-text">
+      AntimatterAI
+      <div class="logo-sub">Command Hub</div>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Overview</div>
+    <div class="nav-item active" data-view="dashboard" onclick="nav(this,'dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" data-view="activity" onclick="nav(this,'activity')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Activity Log
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Products</div>
+    <div class="nav-item" data-view="projects" onclick="nav(this,'projects')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+      Product Tracker
+      <span class="nav-badge" id="open-issues-badge">—</span>
+    </div>
+    <div class="nav-item" data-view="roadmap" onclick="nav(this,'roadmap')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6l9-3 9 3M3 18l9 3 9-3"/></svg>
+      Roadmap
+    </div>
+    <div class="nav-item" data-view="changelog" onclick="nav(this,'changelog')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Changelog
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">Revenue</div>
+    <div class="nav-item" data-view="pipeline" onclick="nav(this,'pipeline')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Deal Pipeline
+      <span class="nav-badge blue" id="deal-count-badge">—</span>
+    </div>
+    <div class="nav-item" data-view="investors" onclick="nav(this,'investors')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Investors
+    </div>
+    <div class="nav-item" data-view="partners" onclick="nav(this,'partners')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>
+      Partners
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-card">
+      <div class="user-avatar">CQ</div>
+      <div>
+        <div class="user-name">Chief Quantum Officer</div>
+        <div class="user-role">AntimatterAI</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div id="main">
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div>
+        <div class="page-title" id="page-title">Dashboard</div>
+        <div class="page-subtitle" id="page-subtitle">AntimatterAI · <span id="live-date"></span></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="alert-banner" onclick="nav(document.querySelector('[data-view=pipeline]'),'pipeline')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Telarus call Monday — prep needed
+      </div>
+      <button class="icon-btn" onclick="openAddModal()" aria-label="Quick add">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      </button>
+      <button class="icon-btn" data-theme-toggle aria-label="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <main id="content">
+
+    <!-- ═══════════ DASHBOARD ═══════════ -->
+    <div id="view-dashboard" class="view active">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5)">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Product Status</div>
+              <div class="card-meta">Beta → GA readiness</div>
+            </div>
+          </div>
+          <div id="dash-products"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔥 Hot Deals</div>
+              <div class="card-meta">Active pipeline</div>
+            </div>
+            <button class="btn btn-sm btn-secondary" onclick="nav(document.querySelector('[data-view=pipeline]'),'pipeline')">View All</button>
+          </div>
+          <div id="dash-deals"></div>
+        </div>
+      </div>
+      <div style="margin-top:var(--space-5);display:grid;grid-template-columns:1fr 1fr;gap:var(--space-5)">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ Open Issues</div>
+          </div>
+          <div id="dash-issues"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">💼 Investor Pulse</div>
+          </div>
+          <div id="dash-investors"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════ PROJECTS ═══════════ -->
+    <div id="view-projects" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          Product Tracker
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddIssueModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Issue
+        </button>
+      </div>
+      <div class="project-grid" id="project-cards"></div>
+    </div>
+
+    <!-- ═══════════ ROADMAP ═══════════ -->
+    <div id="view-roadmap" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6l9-3 9 3M3 18l9 3 9-3"/></svg>
+          Roadmap
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddMilestoneModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Milestone
+        </button>
+      </div>
+      <div class="card" style="margin-bottom:var(--space-5)">
+        <div class="card-header">
+          <div class="card-title">Sprint Velocity</div>
+          <div class="card-meta">Issues resolved per product</div>
+        </div>
+        <div id="sprint-chart"></div>
+      </div>
+      <div id="milestone-list"></div>
+    </div>
+
+    <!-- ═══════════ CHANGELOG ═══════════ -->
+    <div id="view-changelog" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>
+          Changelog
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddChangelogModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Log Entry
+        </button>
+      </div>
+      <div class="card"><div id="changelog-list"></div></div>
+    </div>
+
+    <!-- ═══════════ PIPELINE ═══════════ -->
+    <div id="view-pipeline" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Deal Pipeline
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddDealModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Deal
+        </button>
+      </div>
+      <div class="urgency-card">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div class="urgency-title">🗓 Monday Call — Telarus / Intelsys</div>
+          <div class="urgency-body">Already sent pitch app + Vercel link. Told them pricing is being updated (don't worry about it). Change "Investment Summary" → "Pathways to ATOM Adoption". Remove highlighted $2M. Technical Architecture → "AntimatterAI Proprietary Intelligence Layers &amp; Embeds." Build MyIntelsys version mirroring TelarusHUB.</div>
+        </div>
+      </div>
+      <div class="pipeline-board" id="pipeline-board"></div>
+    </div>
+
+    <!-- ═══════════ INVESTORS ═══════════ -->
+    <div id="view-investors" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Investor Tracker
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddInvestorModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Investor
+        </button>
+      </div>
+      <div class="tab-bar" id="inv-tabs">
+        <button class="tab-btn active" onclick="filterInvestors('All',this)">All</button>
+        <button class="tab-btn" onclick="filterInvestors('Pitched',this)">Pitched</button>
+        <button class="tab-btn" onclick="filterInvestors('Warm',this)">Warm</button>
+        <button class="tab-btn" onclick="filterInvestors('Term Sheet',this)">Term Sheet</button>
+        <button class="tab-btn" onclick="filterInvestors('Passed',this)">Passed</button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="inv-table">
+          <thead>
+            <tr>
+              <th>Investor / Firm</th>
+              <th>Type</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Last Contact</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="investor-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════ PARTNERS ═══════════ -->
+    <div id="view-partners" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/><path d="M2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1z"/></svg>
+          Strategic Partners
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openAddPartnerModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Partner
+        </button>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden">
+        <table class="inv-table">
+          <thead><tr><th>Partner</th><th>Type</th><th>Status</th><th>Contact</th><th>Notes</th><th></th></tr></thead>
+          <tbody id="partner-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══════════ ACTIVITY ═══════════ -->
+    <div id="view-activity" class="view">
+      <div class="section-header">
+        <div class="section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Activity Log
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="clearActivity()">Clear Log</button>
+      </div>
+      <div class="card"><div id="activity-feed"></div></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL -->
+<div id="modal-overlay" role="dialog" aria-modal="true" onclick="closeModalOnOverlay(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Add</div>
+      <button class="modal-close" onclick="closeModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast-container" aria-live="polite"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   STATE — all persisted in-session memory
+═══════════════════════════════════════════ */
+const STATE = {
+  products: [
+    {
+      id:'redteam', name:'Red Team ATOM Map', emoji:'🛡️',
+      status:'beta', gaProgress:65,
+      url: null,
+      description: 'Autonomous Quantum-ready Red Team Range — cybersecurity threat visualization & PQC engine.',
+      issues: [
+        {id:'rt1', text:'Update globe with color-coded attack/block visualization so it shows on the globe', priority:'critical', resolved:false},
+        {id:'rt2', text:'Globe slowly spinning on axis — animation implementation', priority:'high', resolved:false},
+        {id:'rt3', text:'Threat analytics section constantly building/updating at top of page', priority:'high', resolved:false},
+        {id:'rt4', text:'PQC Engine display — needs to show changing state dynamically', priority:'medium', resolved:false},
+        {id:'rt5', text:'Verify 2 pillars (AI & Quantum Attack Telemetry + Red TEAM ATOM Defense Log) are large on sides', priority:'medium', resolved:false},
+        {id:'rt6', text:'Mitre ATLAS & Quantum Technique Heatmap — confirm as-is and working', priority:'low', resolved:false},
+        {id:'rt7', text:'Add ATOM integration similar to Future of Avant/Telarus docs', priority:'medium', resolved:false},
+        {id:'rt8', text:'Maintain familiar CISO UI to reduce learning curve', priority:'low', resolved:false}
+      ]
+    },
+    {
+      id:'telarus', name:'Telarus / Intelsys Pitch Apps', emoji:'🤝',
+      status:'beta', gaProgress:55,
+      url: 'https://telarus-sales-hub-enhancement-visua-psi.vercel.app/',
+      description: 'Pitch web apps for Telarus & Intelsys enterprise deals. Monday call to discuss.',
+      issues: [
+        {id:'tel1', text:'MONDAY CALL — prep deck and confirm pricing story', priority:'critical', resolved:false},
+        {id:'tel2', text:'Change "Investment Summary" → "Pathways to ATOM Adoption" (remove highlighted $2M)', priority:'critical', resolved:false},
+        {id:'tel3', text:'Replace pricing section with 3 Tier options matching telarus-sales-hub-enhancement-visua-psi.vercel.app', priority:'high', resolved:false},
+        {id:'tel4', text:'Technical Architecture → Replace tech stack list with "AntimatterAI Proprietary Intelligence Layers & Embeds" (keep IP protected)', priority:'critical', resolved:false},
+        {id:'tel5', text:'Build MyIntelsys version mirroring TelarusHUB (use MyIntelsys branding instead of TelarusHUB)', priority:'high', resolved:false},
+        {id:'tel6', text:'6-month implementation roadmap — needs per-customer differentiation or process flow approach', priority:'medium', resolved:false},
+        {id:'tel7', text:'Remove/update any remaining old pricing models from pitch deck', priority:'high', resolved:false}
+      ]
+    },
+    {
+      id:'vidzee', name:'Vidzee', emoji:'🎬',
+      status:'beta', gaProgress:40,
+      url: null,
+      description: 'AI video generation platform. Subscription tiers under review. COGS analysis needed.',
+      issues: [
+        {id:'viz1', text:'IS THIS GA? — confirm go-live readiness', priority:'critical', resolved:false},
+        {id:'viz2', text:'Video rendering test running 1+ hour — is this a bug or expected? Debug render pipeline', priority:'critical', resolved:false},
+        {id:'viz3', text:'Do signups get 2 free credits then must purchase? Confirm credit flow', priority:'high', resolved:false},
+        {id:'viz4', text:'Change pricing to MONTHLY subscriptions (not one-time) for all tiers ($19/$79/$149)', priority:'critical', resolved:false},
+        {id:'viz5', text:'COGS Analysis — $19/mo tier: what is our cost & gross profit?', priority:'high', resolved:false},
+        {id:'viz6', text:'COGS Analysis — $79/mo tier: what is our cost & gross profit?', priority:'high', resolved:false},
+        {id:'viz7', text:'COGS Analysis — $149/mo tier: what is our cost & gross profit?', priority:'high', resolved:false},
+        {id:'viz8', text:'Where do we buy test credits? OpenAI API? Confirm credit source', priority:'medium', resolved:false},
+        {id:'viz9', text:'How many test credits do we have available right now?', priority:'medium', resolved:false},
+        {id:'viz10', text:'Audit: what other user roadblocks exist we haven\'t thought of yet?', priority:'medium', resolved:false}
+      ]
+    },
+    {
+      id:'atombrowser', name:'ATOM Browser', emoji:'🧠',
+      status:'dev', gaProgress:20,
+      url: null,
+      description: 'ATOM engine integration in progress — beefy engine, taking time.',
+      issues: [
+        {id:'ab1', text:'Input ATOM engine into browser — in progress, engine is large/complex', priority:'critical', resolved:false},
+        {id:'ab2', text:'Engine integration testing once complete', priority:'high', resolved:false},
+        {id:'ab3', text:'Define GA criteria once engine is live', priority:'medium', resolved:false}
+      ]
+    },
+    {
+      id:'salesdom', name:'AntimatterAI Sales Dominator', emoji:'💼',
+      status:'beta', gaProgress:72,
+      url: 'https://antimatter-sales-dominator.vercel.app/#/pitch',
+      description: 'Sales enablement app for reps like Josh and incoming team. Claude API credits loaded.',
+      issues: [
+        {id:'sd1', text:'Polish UI for external sales reps (Josh + new hires)', priority:'high', resolved:false},
+        {id:'sd2', text:'Repo access added — confirm team has access and Claude credits won\'t run out', priority:'medium', resolved:false},
+        {id:'sd3', text:'Define onboarding flow for new sales reps', priority:'medium', resolved:false},
+        {id:'sd4', text:'Add sales scripts and battle cards for common objections', priority:'high', resolved:false},
+        {id:'sd5', text:'Ensure app drives measurable pipeline — track deal attribution', priority:'medium', resolved:false}
+      ]
+    }
+  ],
+
+  deals: [
+    {id:'d1', name:'Telarus Enterprise', company:'Telarus', value:'$500K ARR', stage:'Negotiation', contact:'TBD', notes:'Monday call — already sent pitch + Vercel link'},
+    {id:'d2', name:'Intelsys Platform', company:'Intelsys', value:'$250K ARR', stage:'Proposal', contact:'TBD', notes:'Mirror TelarusHUB as MyIntelsys'},
+    {id:'d3', name:'DoD Cyber Range', company:'US DoD', value:'TBD', stage:'Prospecting', contact:'', notes:'Red Team ATOM use case'},
+    {id:'d4', name:'CISO Direct — Fortune 500', company:'Undisclosed', value:'$150K', stage:'Qualified', contact:'', notes:''}
+  ],
+
+  investors: [
+    {id:'i1', name:'Josh', firm:'Individual', type:'Angel', amount:'TBD', status:'Warm', lastContact:'Mar 2026', notes:'Sales Dominator access given'},
+    {id:'i2', name:'TBD Angel 1', firm:'', type:'Angel', amount:'', status:'Pitched', lastContact:'', notes:''},
+    {id:'i3', name:'TBD VC Firm', firm:'', type:'VC', amount:'', status:'Pitched', lastContact:'', notes:''}
+  ],
+
+  partners: [
+    {id:'p1', name:'Telarus', type:'Channel Partner', status:'Active Negotiation', contact:'', notes:'Monday call; pitch sent'},
+    {id:'p2', name:'Intelsys', type:'Channel Partner', status:'Active Negotiation', contact:'', notes:'MyIntelsys build in progress'},
+    {id:'p3', name:'Avant', type:'Strategic Ally', status:'Active', contact:'', notes:'Referenced in pitch docs'}
+  ],
+
+  milestones: [
+    {id:'m1', label:'Red Team ATOM: Globe animation live', product:'redteam', date:'Apr 15 2026', done:false},
+    {id:'m2', label:'Telarus: Pathways to ATOM Adoption update', product:'telarus', date:'Apr 1 2026', done:false},
+    {id:'m3', label:'Telarus Monday Call ✓', product:'telarus', date:'Mar 31 2026', done:false},
+    {id:'m4', label:'Vidzee: Monthly subscription billing live', product:'vidzee', date:'Apr 10 2026', done:false},
+    {id:'m5', label:'Vidzee: Render bug resolved', product:'vidzee', date:'Apr 5 2026', done:false},
+    {id:'m6', label:'ATOM Browser: Engine integration complete', product:'atombrowser', date:'May 1 2026', done:false},
+    {id:'m7', label:'Sales Dominator: External rep launch (Josh)', product:'salesdom', date:'Apr 8 2026', done:false},
+    {id:'m8', label:'MyIntelsys: Build & deploy', product:'telarus', date:'Apr 20 2026', done:false}
+  ],
+
+  changelog: [
+    {id:'cl1', version:'v0.9', product:'salesdom', title:'Sales Dominator loaded with Claude API credits, team added to repo', date:'Mar 28 2026', type:'update'},
+    {id:'cl2', version:'v0.8', product:'telarus', title:'Telarus pitch sent + Vercel link shared; Monday call scheduled', date:'Mar 27 2026', type:'milestone'},
+    {id:'cl3', version:'v0.7', product:'vidzee', title:'Vidzee tiers identified — pricing model migration to monthly needed', date:'Mar 26 2026', type:'issue'}
+  ],
+
+  activity: [
+    {msg:'Command Hub initialized for AntimatterAI', color:'var(--accent)', time: new Date().toLocaleTimeString()},
+    {msg:'Telarus Monday call flagged as urgent', color:'var(--yellow)', time: new Date().toLocaleTimeString()}
+  ]
+};
+
+const STAGES = ['Prospecting','Qualified','Proposal','Negotiation','Closed Won'];
+const STATUS_COLORS = {beta:'var(--yellow)',dev:'var(--orange)',ga:'var(--green)',live:'var(--cyan)'};
+const STATUS_LABELS = {beta:'Beta',dev:'In Dev',ga:'GA',live:'Live'};
+
+/* ═══════════ NAVIGATION ═══════════ */
+const TITLES = {dashboard:'Dashboard',projects:'Product Tracker',roadmap:'Roadmap',changelog:'Changelog',pipeline:'Deal Pipeline',investors:'Investors',partners:'Partners',activity:'Activity Log'};
+function nav(el, viewId) {
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(el) el.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+viewId).classList.add('active');
+  document.getElementById('page-title').textContent = TITLES[viewId]||viewId;
+  renderView(viewId);
+}
+function renderView(v){
+  if(v==='dashboard') renderDashboard();
+  if(v==='projects') renderProjects();
+  if(v==='roadmap') renderRoadmap();
+  if(v==='changelog') renderChangelog();
+  if(v==='pipeline') renderPipeline();
+  if(v==='investors') renderInvestors('All');
+  if(v==='partners') renderPartners();
+  if(v==='activity') renderActivity();
+}
+
+/* ═══════════ THEME TOGGLE ═══════════ */
+(function(){
+  const t=document.querySelector('[data-theme-toggle]'),r=document.documentElement;
+  let d='dark'; r.setAttribute('data-theme',d);
+  if(t) t.addEventListener('click',()=>{
+    d=d==='dark'?'light':'dark';
+    r.setAttribute('data-theme',d);
+    t.innerHTML=d==='dark'?
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>':
+      '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  });
+})();
+
+/* ═══════════ LIVE DATE ═══════════ */
+function updateDate(){
+  const d=new Date();
+  document.getElementById('live-date').textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+}
+updateDate(); setInterval(updateDate,60000);
+
+/* ═══════════ SIDEBAR TOGGLE ═══════════ */
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open')}
+
+/* ═══════════ TOAST ═══════════ */
+function toast(msg,type='info'){
+  const c=document.getElementById('toast-container');
+  const el=document.createElement('div');
+  const icons={success:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    warning:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'};
+  el.className=`toast toast-${type}`;
+  el.innerHTML=`${icons[type]||icons.info}<span>${msg}</span>`;
+  c.appendChild(el);
+  setTimeout(()=>{el.classList.add('out');setTimeout(()=>el.remove(),300)},3200);
+}
+
+/* ═══════════ ACTIVITY LOG ═══════════ */
+function logActivity(msg,color='var(--accent)'){
+  STATE.activity.unshift({msg,color,time:new Date().toLocaleTimeString()});
+  updateBadges();
+}
+function renderActivity(){
+  const f=document.getElementById('activity-feed');
+  if(!f) return;
+  if(!STATE.activity.length){f.innerHTML='<p style="color:var(--text-muted);text-align:center;padding:var(--space-8)">No activity yet</p>';return;}
+  f.innerHTML=STATE.activity.map(a=>`
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div class="activity-content">
+        <div class="activity-msg">${a.msg}</div>
+        <div class="activity-time">${a.time}</div>
+      </div>
+    </div>`).join('');
+}
+function clearActivity(){STATE.activity=[];renderActivity();toast('Activity log cleared','info');}
+
+/* ═══════════ BADGES ═══════════ */
+function updateBadges(){
+  const open=STATE.products.reduce((s,p)=>s+p.issues.filter(i=>!i.resolved).length,0);
+  const ob=document.getElementById('open-issues-badge');
+  if(ob) ob.textContent=open||'✓';
+  const db=document.getElementById('deal-count-badge');
+  if(db) db.textContent=STATE.deals.length;
+}
+
+/* ═══════════ DASHBOARD ═══════════ */
+function renderDashboard(){
+  const openIssues=STATE.products.reduce((s,p)=>s+p.issues.filter(i=>!i.resolved).length,0);
+  const totalIssues=STATE.products.reduce((s,p)=>s+p.issues.length,0);
+  const resolvedIssues=totalIssues-openIssues;
+  document.getElementById('kpi-grid').innerHTML=[
+    {label:'Open Issues',val:openIssues,sub:`${resolvedIssues} resolved`,color:'var(--red)'},
+    {label:'Active Products',val:STATE.products.length,sub:`${STATE.products.filter(p=>p.status==='beta').length} in beta`,color:'var(--accent)'},
+    {label:'Pipeline Deals',val:STATE.deals.length,sub:`${STATE.deals.filter(d=>d.stage==='Negotiation'||d.stage==='Closed Won').length} hot`,color:'var(--green)'},
+    {label:'Investors Tracked',val:STATE.investors.length,sub:`${STATE.investors.filter(i=>i.status==='Warm'||i.status==='Term Sheet').length} warm/term`,color:'var(--cyan)'},
+    {label:'Partners',val:STATE.partners.length,sub:'Active relationships',color:'var(--purple)'},
+    {label:'Milestones',val:STATE.milestones.filter(m=>m.done).length+'/'+STATE.milestones.length,sub:`${STATE.milestones.filter(m=>!m.done).length} pending`,color:'var(--yellow)'}
+  ].map(k=>`<div class="kpi-card"><div class="kpi-label">${k.label}</div><div class="kpi-value count-anim" style="color:${k.color}">${k.val}</div><div class="kpi-sub">${k.sub}</div></div>`).join('');
+
+  document.getElementById('dash-products').innerHTML=STATE.products.map(p=>{
+    const c=p.issues.filter(i=>!i.resolved).length;
+    return `<div style="display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-3)">
+      <span style="font-size:18px">${p.emoji}</span>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:var(--text-sm);font-weight:600">${p.name}</span>
+          <span class="badge badge-${p.status==='ga'?'green':p.status==='beta'?'yellow':'orange'}">${STATUS_LABELS[p.status]}</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${p.gaProgress}%;background:${STATUS_COLORS[p.status]||'var(--accent)'}"></div></div>
+        <div style="font-size:var(--text-xs);color:var(--text-muted)">${p.gaProgress}% GA ready · ${c} open issue${c!==1?'s':''}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('dash-deals').innerHTML=STATE.deals.slice(0,4).map(d=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-2) 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:var(--text-sm);font-weight:600">${d.name}</div>
+        <div style="font-size:var(--text-xs);color:var(--text-muted)">${d.company} · ${d.stage}</div>
+      </div>
+      <span style="font-size:var(--text-xs);font-weight:700;color:var(--green);font-family:var(--font-mono)">${d.value}</span>
+    </div>`).join('');
+
+  const critIssues=STATE.products.flatMap(p=>p.issues.filter(i=>!i.resolved&&(i.priority==='critical'||i.priority==='high'))).slice(0,5);
+  document.getElementById('dash-issues').innerHTML=critIssues.length?critIssues.map(i=>{
+    const p=STATE.products.find(pr=>pr.issues.some(x=>x.id===i.id));
+    return `<div style="display:flex;align-items:flex-start;gap:var(--space-2);padding:var(--space-2) 0;border-bottom:1px solid var(--border)">
+      <span class="issue-priority pri-${i.priority}">${i.priority}</span>
+      <div>
+        <div style="font-size:var(--text-xs);color:var(--text-muted)">${p?p.emoji+' '+p.name:''}</div>
+        <div style="font-size:var(--text-sm)">${i.text.slice(0,60)}${i.text.length>60?'…':''}</div>
+      </div>
+    </div>`;
+  }).join(''):`<p style="color:var(--green);text-align:center;padding:var(--space-8)">✓ No critical issues</p>`;
+
+  document.getElementById('dash-investors').innerHTML=STATE.investors.map(i=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:var(--space-2) 0;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="font-size:var(--text-sm);font-weight:600">${i.name}${i.firm?' · '+i.firm:''}</div>
+        <div style="font-size:var(--text-xs);color:var(--text-muted)">${i.type} · ${i.amount||'Undisclosed'}</div>
+      </div>
+      <span class="badge badge-${i.status==='Warm'?'yellow':i.status==='Term Sheet'?'green':i.status==='Passed'?'red':'blue'}">${i.status}</span>
+    </div>`).join('');
+}
+
+/* ═══════════ PROJECTS ═══════════ */
+function renderProjects(){
+  document.getElementById('project-cards').innerHTML=STATE.products.map(p=>{
+    const open=p.issues.filter(i=>!i.resolved).length;
+    const total=p.issues.length;
+    return `<div class="card" id="proj-${p.id}">
+      <div class="card-header">
+        <div>
+          <div style="display:flex;align-items:center;gap:var(--space-2)">
+            <span style="font-size:20px">${p.emoji}</span>
+            <div>
+              <div class="card-title">${p.name}</div>
+              <div class="card-meta">${p.description}</div>
+            </div>
+          </div>
+        </div>
+        <span class="badge badge-${p.status==='ga'?'green':p.status==='beta'?'yellow':'orange'}">${STATUS_LABELS[p.status]}</span>
+      </div>
+      ${p.url?`<div style="margin-bottom:var(--space-3)"><a href="${p.url}" target="_blank" rel="noopener noreferrer" class="link-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 0 1-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>${p.url.replace(/^https?:\/\//,'').slice(0,40)}</a></div>`:''}
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-2)">
+        <span style="font-size:var(--text-xs);color:var(--text-muted)">GA Readiness</span>
+        <span style="font-size:var(--text-xs);font-family:var(--font-mono);font-weight:600">${p.gaProgress}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${p.gaProgress}%;background:${STATUS_COLORS[p.status]||'var(--accent)'}"></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:var(--space-3) 0 var(--space-2)">
+        <span style="font-size:var(--text-xs);font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em">${open} Open Issues</span>
+        <button class="btn btn-ghost btn-sm" onclick="openAddIssueModal('${p.id}')">+ Add</button>
+      </div>
+      <div id="issues-${p.id}">
+        ${p.issues.map(i=>`
+          <div class="issue-item" id="issue-row-${i.id}">
+            <div class="issue-check ${i.resolved?'checked':''}" onclick="toggleIssue('${p.id}','${i.id}')" aria-label="Toggle issue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="issue-text ${i.resolved?'resolved':''}">${i.text}</div>
+            <span class="issue-priority pri-${i.priority}">${i.priority}</span>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleIssue(productId, issueId){
+  const p=STATE.products.find(x=>x.id===productId);
+  const i=p.issues.find(x=>x.id===issueId);
+  i.resolved=!i.resolved;
+  const action=i.resolved?'Resolved':'Reopened';
+  logActivity(`${action}: [${p.name}] ${i.text.slice(0,50)}${i.text.length>50?'…':''}`, i.resolved?'var(--green)':'var(--yellow)');
+  toast(`Issue ${action.toLowerCase()}!`, i.resolved?'success':'warning');
+  renderProjects(); updateBadges();
+  // update GA progress
+  const total=p.issues.length;
+  const resolved=p.issues.filter(x=>x.resolved).length;
+  p.gaProgress=Math.round((resolved/total)*100);
+}
+
+/* ═══════════ ROADMAP ═══════════ */
+function renderRoadmap(){
+  // Sprint chart
+  document.getElementById('sprint-chart').innerHTML=STATE.products.map(p=>{
+    const done=p.issues.filter(i=>i.resolved).length;
+    const total=p.issues.length;
+    const pct=total?Math.round(done/total*100):0;
+    const colors=['var(--accent)','var(--cyan)','var(--purple)','var(--orange)','var(--green)'];
+    const ci=STATE.products.indexOf(p)%colors.length;
+    return `<div class="sprint-bar-wrap">
+      <span class="sprint-label">${p.emoji} ${p.name.split(' ').slice(0,2).join(' ')}</span>
+      <div class="sprint-bar"><div class="sprint-bar-fill" style="width:${pct}%;background:${colors[ci]}"></div></div>
+      <span class="sprint-pct">${pct}%</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('milestone-list').innerHTML=`
+    <div class="card">
+      <div class="card-header"><div class="card-title">Milestones</div></div>
+      ${STATE.milestones.map(m=>`
+        <div class="milestone-item" onclick="toggleMilestone('${m.id}')">
+          <div class="milestone-check ${m.done?'done':''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="milestone-label" style="${m.done?'text-decoration:line-through;color:var(--text-muted)':''}">${m.label}</div>
+          <span class="badge badge-${m.done?'green':'gray'}">${m.done?'Done':'Pending'}</span>
+          <div class="milestone-date">${m.date}</div>
+        </div>`).join('')}
+    </div>`;
+}
+
+function toggleMilestone(id){
+  const m=STATE.milestones.find(x=>x.id===id);
+  m.done=!m.done;
+  logActivity(`Milestone ${m.done?'completed':'reopened'}: ${m.label}`, m.done?'var(--green)':'var(--yellow)');
+  toast(`Milestone ${m.done?'completed!':'reopened'}`, m.done?'success':'warning');
+  renderRoadmap();
+}
+
+/* ═══════════ CHANGELOG ═══════════ */
+function renderChangelog(){
+  const list=document.getElementById('changelog-list');
+  if(!list) return;
+  const typeColors={update:'var(--accent)',milestone:'var(--green)',issue:'var(--yellow)',bug:'var(--red)'};
+  list.innerHTML=STATE.changelog.length?STATE.changelog.map(c=>`
+    <div class="changelog-entry">
+      <div class="changelog-dot" style="background:${typeColors[c.type]||'var(--accent)'}"></div>
+      <div class="changelog-version">${c.version}</div>
+      <div class="changelog-content">
+        <div class="changelog-title">${c.title}</div>
+        <div class="changelog-date">${c.product} · ${c.date} · <span class="badge badge-${c.type==='issue'?'yellow':c.type==='bug'?'red':c.type==='milestone'?'green':'blue'}">${c.type}</span></div>
+      </div>
+    </div>`).join(''):
+    '<p style="color:var(--text-muted);text-align:center;padding:var(--space-8)">No changelog entries yet</p>';
+}
+
+/* ═══════════ PIPELINE ═══════════ */
+function renderPipeline(){
+  document.getElementById('pipeline-board').innerHTML=STAGES.map(stage=>{
+    const deals=STATE.deals.filter(d=>d.stage===stage);
+    return `<div class="pipeline-col">
+      <div class="pipeline-col-header">
+        ${stage} <span class="pipeline-count">${deals.length}</span>
+      </div>
+      ${deals.map(d=>`
+        <div class="deal-card" onclick="advanceDeal('${d.id}')">
+          <div class="deal-name">${d.name}</div>
+          <div class="deal-meta">${d.company}</div>
+          ${d.notes?`<div class="deal-meta" style="margin-top:4px;font-style:italic">${d.notes.slice(0,50)}${d.notes.length>50?'…':''}</div>`:''}
+          <div class="deal-value">${d.value}</div>
+          ${stage!=='Closed Won'?`<div style="margin-top:var(--space-2)"><button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();advanceDeal('${d.id}')">Advance Stage →</button></div>`:''}
+        </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function advanceDeal(id){
+  const d=STATE.deals.find(x=>x.id===id);
+  const idx=STAGES.indexOf(d.stage);
+  if(idx<STAGES.length-1){
+    const prev=d.stage;
+    d.stage=STAGES[idx+1];
+    logActivity(`Deal advanced: ${d.name} → ${d.stage}`, 'var(--green)');
+    toast(`${d.name} → ${d.stage}`,'success');
+    renderPipeline(); renderDashboard(); updateBadges();
+  } else { toast('Already at Closed Won!','info'); }
+}
+
+/* ═══════════ INVESTORS ═══════════ */
+let currentInvFilter='All';
+function renderInvestors(filter){
+  currentInvFilter=filter;
+  const rows=filter==='All'?STATE.investors:STATE.investors.filter(i=>i.status===filter);
+  const tb=document.getElementById('investor-tbody');
+  if(!tb) return;
+  tb.innerHTML=rows.length?rows.map(i=>`
+    <tr>
+      <td><strong>${i.name}</strong>${i.firm?`<br><span style="font-size:var(--text-xs);color:var(--text-muted)">${i.firm}</span>`:''}</td>
+      <td>${i.type}</td>
+      <td style="font-family:var(--font-mono);font-weight:600;color:var(--green)">${i.amount||'—'}</td>
+      <td><span class="badge badge-${i.status==='Warm'?'yellow':i.status==='Term Sheet'?'green':i.status==='Passed'?'red':'blue'}">${i.status}</span></td>
+      <td style="color:var(--text-muted);font-size:var(--text-xs)">${i.lastContact||'—'}</td>
+      <td style="font-size:var(--text-xs);max-width:200px">${i.notes||'—'}</td>
+      <td>
+        <div style="display:flex;gap:var(--space-2)">
+          <button class="btn btn-sm btn-secondary" onclick="advanceInvestor('${i.id}')">Advance</button>
+          <button class="btn btn-sm btn-danger" onclick="removeInvestor('${i.id}')">✕</button>
+        </div>
+      </td>
+    </tr>`).join(''):
+    `<tr><td colspan="7" style="text-align:center;padding:var(--space-8);color:var(--text-muted)">No investors in this stage</td></tr>`;
+}
+
+function filterInvestors(f,btn){
+  document.querySelectorAll('#inv-tabs .tab-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  renderInvestors(f);
+}
+
+const INV_STAGES=['Pitched','Warm','Term Sheet','Closed'];
+function advanceInvestor(id){
+  const i=STATE.investors.find(x=>x.id===id);
+  const idx=INV_STAGES.indexOf(i.status);
+  if(idx<INV_STAGES.length-1){
+    i.status=INV_STAGES[idx+1];
+    i.lastContact=new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'});
+    logActivity(`Investor status: ${i.name} → ${i.status}`,'var(--cyan)');
+    toast(`${i.name} advanced to ${i.status}`,'success');
+    renderInvestors(currentInvFilter); updateBadges();
+  } else { toast('Already at Closed!','info'); }
+}
+
+function removeInvestor(id){
+  const i=STATE.investors.find(x=>x.id===id);
+  STATE.investors=STATE.investors.filter(x=>x.id!==id);
+  logActivity(`Investor removed: ${i.name}`,'var(--red)');
+  toast('Investor removed','warning');
+  renderInvestors(currentInvFilter); updateBadges();
+}
+
+/* ═══════════ PARTNERS ═══════════ */
+function renderPartners(){
+  const tb=document.getElementById('partner-tbody');
+  if(!tb) return;
+  tb.innerHTML=STATE.partners.map(p=>`
+    <tr>
+      <td><strong>${p.name}</strong></td>
+      <td>${p.type}</td>
+      <td><span class="badge badge-${p.status.includes('Active')?'green':'gray'}">${p.status}</span></td>
+      <td style="color:var(--text-muted)">${p.contact||'—'}</td>
+      <td style="font-size:var(--text-xs)">${p.notes||'—'}</td>
+      <td><button class="btn btn-sm btn-danger" onclick="removePartner('${p.id}')">✕</button></td>
+    </tr>`).join('');
+}
+
+function removePartner(id){
+  STATE.partners=STATE.partners.filter(x=>x.id!==id);
+  toast('Partner removed','warning');
+  renderPartners(); updateBadges();
+}
+
+/* ═══════════ MODALS ═══════════ */
+function openModal(title,bodyHtml){
+  document.getElementById('modal-title').textContent=title;
+  document.getElementById('modal-body').innerHTML=bodyHtml;
+  document.getElementById('modal-overlay').classList.add('open');
+  const firstInput=document.querySelector('#modal-body input,#modal-body select,#modal-body textarea');
+  if(firstInput) setTimeout(()=>firstInput.focus(),100);
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open')}
+function closeModalOnOverlay(e){if(e.target===document.getElementById('modal-overlay'))closeModal()}
+
+function openAddModal(){
+  openModal('Quick Add',`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)">
+      <button class="btn btn-secondary" onclick="closeModal();openAddIssueModal()" style="flex-direction:column;height:80px;font-size:var(--text-sm)">📋<br>Issue</button>
+      <button class="btn btn-secondary" onclick="closeModal();openAddDealModal()" style="flex-direction:column;height:80px;font-size:var(--text-sm)">💰<br>Deal</button>
+      <button class="btn btn-secondary" onclick="closeModal();openAddInvestorModal()" style="flex-direction:column;height:80px;font-size:var(--text-sm)">💼<br>Investor</button>
+      <button class="btn btn-secondary" onclick="closeModal();openAddMilestoneModal()" style="flex-direction:column;height:80px;font-size:var(--text-sm)">🎯<br>Milestone</button>
+    </div>`);
+}
+
+function openAddIssueModal(productId){
+  openModal('Add Issue',`
+    <div class="modal-form">
+      <div class="field"><label for="iss-prod">Product</label>
+        <select id="iss-prod" class="input select">
+          ${STATE.products.map(p=>`<option value="${p.id}" ${p.id===productId?'selected':''}>${p.emoji} ${p.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label for="iss-text">Issue Description</label><input id="iss-text" class="input" placeholder="Describe the issue or task..." type="text"></div>
+      <div class="field"><label for="iss-pri">Priority</label>
+        <select id="iss-pri" class="input select">
+          <option value="critical">🔴 Critical</option>
+          <option value="high">🟠 High</option>
+          <option value="medium" selected>🟡 Medium</option>
+          <option value="low">⚪ Low</option>
+          <option value="question">🔵 Question</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveIssue()">Save Issue</button>
+      </div>
+    </div>`);
+}
+
+function saveIssue(){
+  const pid=document.getElementById('iss-prod').value;
+  const text=document.getElementById('iss-text').value.trim();
+  const pri=document.getElementById('iss-pri').value;
+  if(!text){toast('Issue description required','warning');return;}
+  const p=STATE.products.find(x=>x.id===pid);
+  const id='i'+Date.now();
+  p.issues.push({id,text,priority:pri,resolved:false});
+  logActivity(`Issue added: [${p.name}] ${text.slice(0,50)}`,'var(--accent)');
+  toast('Issue added!','success');
+  closeModal(); renderProjects(); updateBadges();
+}
+
+function openAddDealModal(){
+  openModal('Add Deal',`
+    <div class="modal-form">
+      <div class="form-row">
+        <div class="field"><label for="deal-name">Deal Name</label><input id="deal-name" class="input" type="text" placeholder="e.g. CISO Direct Q2"></div>
+        <div class="field"><label for="deal-company">Company</label><input id="deal-company" class="input" type="text" placeholder="Company name"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="deal-val">Value</label><input id="deal-val" class="input" type="text" placeholder="$100K ARR"></div>
+        <div class="field"><label for="deal-stage">Stage</label>
+          <select id="deal-stage" class="input select">${STAGES.map(s=>`<option>${s}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="field"><label for="deal-notes">Notes</label><input id="deal-notes" class="input" type="text" placeholder="Key context..."></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDeal()">Save Deal</button>
+      </div>
+    </div>`);
+}
+
+function saveDeal(){
+  const name=document.getElementById('deal-name').value.trim();
+  const company=document.getElementById('deal-company').value.trim();
+  if(!name){toast('Deal name required','warning');return;}
+  STATE.deals.push({id:'d'+Date.now(),name,company,value:document.getElementById('deal-val').value||'TBD',stage:document.getElementById('deal-stage').value,contact:'',notes:document.getElementById('deal-notes').value});
+  logActivity(`New deal added: ${name} (${company})`,'var(--green)');
+  toast('Deal added!','success');
+  closeModal(); renderPipeline(); updateBadges();
+}
+
+function openAddInvestorModal(){
+  openModal('Add Investor',`
+    <div class="modal-form">
+      <div class="form-row">
+        <div class="field"><label for="inv-name">Name</label><input id="inv-name" class="input" type="text" placeholder="Full name"></div>
+        <div class="field"><label for="inv-firm">Firm</label><input id="inv-firm" class="input" type="text" placeholder="Fund / firm name"></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="inv-type">Type</label>
+          <select id="inv-type" class="input select"><option>Angel</option><option>VC</option><option>Family Office</option><option>Strategic</option><option>Corporate</option></select>
+        </div>
+        <div class="field"><label for="inv-amt">Amount</label><input id="inv-amt" class="input" type="text" placeholder="$500K"></div>
+      </div>
+      <div class="field"><label for="inv-status">Status</label>
+        <select id="inv-status" class="input select"><option>Pitched</option><option>Warm</option><option>Term Sheet</option><option>Closed</option><option>Passed</option></select>
+      </div>
+      <div class="field"><label for="inv-notes">Notes</label><input id="inv-notes" class="input" type="text" placeholder="Key context..."></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveInvestor()">Save</button>
+      </div>
+    </div>`);
+}
+
+function saveInvestor(){
+  const name=document.getElementById('inv-name').value.trim();
+  if(!name){toast('Name required','warning');return;}
+  STATE.investors.push({id:'i'+Date.now(),name,firm:document.getElementById('inv-firm').value,type:document.getElementById('inv-type').value,amount:document.getElementById('inv-amt').value,status:document.getElementById('inv-status').value,lastContact:new Date().toLocaleDateString('en-US',{month:'short',year:'numeric'}),notes:document.getElementById('inv-notes').value});
+  logActivity(`Investor added: ${name}`,'var(--cyan)');
+  toast('Investor added!','success');
+  closeModal(); renderInvestors(currentInvFilter); updateBadges();
+}
+
+function openAddPartnerModal(){
+  openModal('Add Partner',`
+    <div class="modal-form">
+      <div class="form-row">
+        <div class="field"><label for="par-name">Partner Name</label><input id="par-name" class="input" type="text"></div>
+        <div class="field"><label for="par-type">Type</label>
+          <select id="par-type" class="input select"><option>Channel Partner</option><option>Strategic Ally</option><option>Integration</option><option>Reseller</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="par-status">Status</label><input id="par-status" class="input" type="text" placeholder="Active / Negotiating"></div>
+        <div class="field"><label for="par-contact">Contact</label><input id="par-contact" class="input" type="text"></div>
+      </div>
+      <div class="field"><label for="par-notes">Notes</label><input id="par-notes" class="input" type="text"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="savePartner()">Save</button>
+      </div>
+    </div>`);
+}
+
+function savePartner(){
+  const name=document.getElementById('par-name').value.trim();
+  if(!name){toast('Partner name required','warning');return;}
+  STATE.partners.push({id:'p'+Date.now(),name,type:document.getElementById('par-type').value,status:document.getElementById('par-status').value||'Active',contact:document.getElementById('par-contact').value,notes:document.getElementById('par-notes').value});
+  logActivity(`Partner added: ${name}`,'var(--purple)');
+  toast('Partner added!','success');
+  closeModal(); renderPartners();
+}
+
+function openAddMilestoneModal(){
+  openModal('Add Milestone',`
+    <div class="modal-form">
+      <div class="field"><label for="ml-label">Milestone</label><input id="ml-label" class="input" type="text" placeholder="Describe the milestone..."></div>
+      <div class="form-row">
+        <div class="field"><label for="ml-prod">Product</label>
+          <select id="ml-prod" class="input select">${STATE.products.map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label for="ml-date">Target Date</label><input id="ml-date" class="input" type="text" placeholder="Apr 15 2026"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMilestone()">Save</button>
+      </div>
+    </div>`);
+}
+
+function saveMilestone(){
+  const label=document.getElementById('ml-label').value.trim();
+  if(!label){toast('Milestone required','warning');return;}
+  STATE.milestones.push({id:'m'+Date.now(),label,product:document.getElementById('ml-prod').value,date:document.getElementById('ml-date').value||'TBD',done:false});
+  logActivity(`Milestone added: ${label}`,'var(--accent)');
+  toast('Milestone added!','success');
+  closeModal(); renderRoadmap();
+}
+
+function openAddChangelogModal(){
+  openModal('Log Changelog Entry',`
+    <div class="modal-form">
+      <div class="form-row">
+        <div class="field"><label for="cl-ver">Version</label><input id="cl-ver" class="input" type="text" placeholder="v1.0"></div>
+        <div class="field"><label for="cl-prod">Product</label>
+          <select id="cl-prod" class="input select">${STATE.products.map(p=>`<option value="${p.id}">${p.emoji} ${p.name}</option>`).join('')}</select>
+        </div>
+      </div>
+      <div class="field"><label for="cl-title">Description</label><input id="cl-title" class="input" type="text" placeholder="What changed?"></div>
+      <div class="field"><label for="cl-type">Type</label>
+        <select id="cl-type" class="input select"><option value="update">Update</option><option value="milestone">Milestone</option><option value="issue">Issue</option><option value="bug">Bug Fix</option></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveChangelog()">Save</button>
+      </div>
+    </div>`);
+}
+
+function saveChangelog(){
+  const title=document.getElementById('cl-title').value.trim();
+  if(!title){toast('Description required','warning');return;}
+  STATE.changelog.unshift({id:'cl'+Date.now(),version:document.getElementById('cl-ver').value||'v?',product:document.getElementById('cl-prod').value,title,date:new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),type:document.getElementById('cl-type').value});
+  logActivity(`Changelog: ${title}`,'var(--accent)');
+  toast('Entry logged!','success');
+  closeModal(); renderChangelog();
+}
+
+/* ═══════════ INIT ═══════════ */
+function init(){
+  updateBadges();
+  renderDashboard();
+  if(typeof lucide!=='undefined') lucide.createIcons();
+}
+init();
+</script>
+</body>
+</html>

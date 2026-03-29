@@ -333,7 +333,7 @@ table{border-collapse:collapse;width:100%}
 
 /* ═══════════════════════════════════════════ AUTH SCREEN ═══ */
 #auth-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:var(--space-6)}
-#auth-screen.hidden{display:none}
+#auth-screen.hidden{display:none!important}
 .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:var(--space-8);width:100%;max-width:420px;text-align:center}
 .auth-box h1{font-size:var(--text-lg);font-weight:700;margin-bottom:var(--space-2)}
 .auth-box p{font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--space-6);line-height:1.6}
@@ -979,7 +979,9 @@ async function handleAuth() {
 }
 
 function skipAuth() {
-  document.getElementById('auth-screen').classList.add('hidden');
+  const el = document.getElementById('auth-screen');
+  el.classList.add('hidden');
+  el.style.display = 'none';
   updateSyncUI('offline', 'Local only');
 }
 
@@ -1000,8 +1002,10 @@ async function handleUserMenu() {
 
 async function initSupabaseSession() {
   if (!supabase) {
-    // Supabase not configured — check if user already skipped or auto-skip
-    document.getElementById('auth-screen').classList.add('hidden');
+    // Supabase not configured — auto-skip auth
+    const el = document.getElementById('auth-screen');
+    el.classList.add('hidden');
+    el.style.display = 'none';
     return;
   }
 
@@ -1022,7 +1026,9 @@ async function initSupabaseSession() {
 
 async function onSignIn(user) {
   currentUser = user;
-  document.getElementById('auth-screen').classList.add('hidden');
+  const authEl = document.getElementById('auth-screen');
+  authEl.classList.add('hidden');
+  authEl.style.display = 'none';
   document.getElementById('user-menu-btn').style.display = 'flex';
   document.getElementById('user-menu-email').textContent = user.email;
   updateSyncUI('syncing', 'Connecting...');

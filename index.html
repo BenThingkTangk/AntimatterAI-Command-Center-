@@ -719,7 +719,7 @@ table{border-collapse:collapse;width:100%}
 const SUPABASE_URL = 'https://tzwpjxyqdlgcvgownxno.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR6d3BqeHlxZGxnY3Znb3dueG5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ3NTk4NzgsImV4cCI6MjA5MDMzNTg3OH0.1Fy0TBqjTThlPNn6c8Yj08spz-BD8jvts8McOb_3ae8';
 
-let supabase = null;
+let sbClient = null;
 let currentUser = null;
 let currentHubId = null;
 let realtimeChannel = null;
@@ -728,7 +728,7 @@ let isSyncing = false;
 
 // Initialize Supabase client (only if configured)
 if (SUPABASE_URL !== 'YOUR_SUPABASE_URL' && typeof window.supabase !== 'undefined') {
-  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 /* ═══════════════════════════════════════════
@@ -891,11 +891,11 @@ function debouncedCloudSave() {
 }
 
 async function saveToCloud() {
-  if (!supabase || !currentHubId || isSyncing) return;
+  if (!sbClient || !currentHubId || isSyncing) return;
   isSyncing = true;
   updateSyncUI('syncing', 'Syncing...');
   try {
-    const { error } = await supabase
+    const { error } = await sbClient
       .from('hub_state')
       .update({
         state: getStateSnapshot(),
@@ -965,7 +965,7 @@ function updateSyncUI(status, label) {
 
 /* ═══════════ SUPABASE AUTH & SYNC ═══════════ */
 async function handleAuth() {
-  if (!supabase) {
+  if (!sbClient) {
     document.getElementById('auth-error').textContent = 'Supabase not configured. Add your project URL and anon key to the source.';
     return;
   }
@@ -979,7 +979,7 @@ async function handleAuth() {
   btn.disabled = true;
   document.getElementById('auth-error').textContent = '';
 
-  const { error } = await supabase.auth.signInWithOtp({
+  const { error } = await sbClient.auth.signInWithOtp({
     email,
     options: { emailRedirectTo: window.location.origin + window.location.pathname }
   });
@@ -1002,13 +1002,13 @@ function skipAuth() {
 }
 
 async function handleUserMenu() {
-  if (!supabase) return;
-  await supabase.auth.signOut();
+  if (!sbClient) return;
+  await sbClient.auth.signOut();
   currentUser = null;
   currentHubId = null;
   syncEnabled = false;
   if (realtimeChannel) {
-    supabase.removeChannel(realtimeChannel);
+    sbClient.removeChannel(realtimeChannel);
     realtimeChannel = null;
   }
   document.getElementById('user-menu-btn').style.display = 'none';
@@ -1018,7 +1018,7 @@ async function handleUserMenu() {
 }
 
 async function initSupabaseSession() {
-  if (!supabase) {
+  if (!sbClient) {
     // Supabase not configured — auto-skip auth
     const el = document.getElementById('auth-screen');
     el.classList.add('hidden');
@@ -1027,14 +1027,14 @@ async function initSupabaseSession() {
   }
 
   // Check for existing session
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sbClient.auth.getSession();
   if (session) {
     await onSignIn(session.user);
   }
   // else: auth screen stays visible
 
   // Listen for auth changes (magic link callback)
-  supabase.auth.onAuthStateChange(async (event, session) => {
+  sbClient.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
       await onSignIn(session.user);
     }
@@ -1061,7 +1061,7 @@ async function onSignIn(user) {
       await loadFromCloud();
     } else {
       // Find or create hub
-      let { data: memberships, error } = await supabase
+      let { data: memberships, error } = await sbClient
         .from('hub_members')
         .select('hub_id, role')
         .eq('user_id', user.id);
@@ -1075,7 +1075,7 @@ async function onSignIn(user) {
         await loadFromCloud();
       } else {
         // First time — create hub and seed with current local state
-        const { data: hub, error: hubErr } = await supabase
+        const { data: hub, error: hubErr } = await sbClient
           .from('hub_state')
           .insert({
             hub_name: 'AntimatterAI Command Hub',
@@ -1089,7 +1089,7 @@ async function onSignIn(user) {
         currentHubId = hub.id;
 
         // Add user as owner
-        const { error: memErr } = await supabase
+        const { error: memErr } = await sbClient
           .from('hub_members')
           .insert({ hub_id: hub.id, user_id: user.id, role: 'owner' });
         if (memErr) throw memErr;
@@ -1108,9 +1108,9 @@ async function onSignIn(user) {
 }
 
 async function loadFromCloud() {
-  if (!supabase || !currentHubId) return;
+  if (!sbClient || !currentHubId) return;
   try {
-    const { data, error } = await supabase
+    const { data, error } = await sbClient
       .from('hub_state')
       .select('state')
       .eq('id', currentHubId)
@@ -1132,8 +1132,8 @@ async function loadFromCloud() {
 }
 
 function subscribeToRealtime() {
-  if (!supabase || !currentHubId) return;
-  realtimeChannel = supabase
+  if (!sbClient || !currentHubId) return;
+  realtimeChannel = sbClient
     .channel('hub_state_changes')
     .on('postgres_changes',
       { event: 'UPDATE', schema: 'public', table: 'hub_state', filter: `id=eq.${currentHubId}` },
@@ -1753,7 +1753,7 @@ function saveChangelog(){
 
 /* ═══════════ INVITE TEAM ═══════════ */
 async function openInviteTeamModal() {
-  if (!supabase || !currentHubId || !currentUser) {
+  if (!sbClient || !currentHubId || !currentUser) {
     toast('Sign in to manage team', 'warning');
     return;
   }
@@ -1797,16 +1797,16 @@ async function openInviteTeamModal() {
 
 async function loadTeamMembers() {
   const list = document.getElementById('team-members-list');
-  if (!list || !supabase || !currentHubId) return;
+  if (!list || !sbClient || !currentHubId) return;
 
   try {
     // Query members of this hub — join with auth.users to get emails
-    const { data, error } = await supabase
+    const { data, error } = await sbClient
       .rpc('get_hub_members', { target_hub_id: currentHubId });
 
     if (error) {
       // Fallback: RPC not available, use direct query
-      const { data: members, error: memErr } = await supabase
+      const { data: members, error: memErr } = await sbClient
         .from('hub_members')
         .select('user_id, role, created_at')
         .eq('hub_id', currentHubId);
@@ -1868,10 +1868,10 @@ let currentUserRole = 'owner';
 async function loadPendingInvites() {
   const section = document.getElementById('pending-invites-section');
   const list = document.getElementById('pending-invites-list');
-  if (!section || !list || !supabase || !currentHubId) return;
+  if (!section || !list || !sbClient || !currentHubId) return;
 
   try {
-    const { data: hub } = await supabase
+    const { data: hub } = await sbClient
       .from('hub_state')
       .select('state')
       .eq('id', currentHubId)
@@ -1903,7 +1903,7 @@ async function loadPendingInvites() {
 }
 
 async function sendInvite() {
-  if (!supabase || !currentHubId) return;
+  if (!sbClient || !currentHubId) return;
 
   const emailInput = document.getElementById('invite-email');
   const roleSelect = document.getElementById('invite-role');
@@ -1922,7 +1922,7 @@ async function sendInvite() {
   try {
     // Store the pending invite in hub_state — when the invited user signs in,
     // processPendingInvites() will automatically add them to this hub.
-    const { data: hub } = await supabase
+    const { data: hub } = await sbClient
       .from('hub_state')
       .select('state')
       .eq('id', currentHubId)
@@ -1942,7 +1942,7 @@ async function sendInvite() {
     pendingInvites.push({ email, role, invited_at: new Date().toISOString(), invited_by: currentUser.email });
     currentState._pendingInvites = pendingInvites;
 
-    await supabase
+    await sbClient
       .from('hub_state')
       .update({ state: currentState })
       .eq('id', currentHubId);
@@ -1965,11 +1965,11 @@ async function sendInvite() {
 }
 
 async function removeMember(userId) {
-  if (!supabase || !currentHubId) return;
+  if (!sbClient || !currentHubId) return;
   if (userId === currentUser.id) { toast('Cannot remove yourself', 'warning'); return; }
 
   try {
-    const { error } = await supabase
+    const { error } = await sbClient
       .from('hub_members')
       .delete()
       .eq('hub_id', currentHubId)
@@ -1987,11 +1987,11 @@ async function removeMember(userId) {
 
 // Process pending invites when a new user signs in
 async function processPendingInvites(user) {
-  if (!supabase || !user?.email) return false;
+  if (!sbClient || !user?.email) return false;
 
   try {
     // First, check if user already has a hub membership
-    const { data: existingMemberships } = await supabase
+    const { data: existingMemberships } = await sbClient
       .from('hub_members')
       .select('hub_id')
       .eq('user_id', user.id);
@@ -1999,7 +1999,7 @@ async function processPendingInvites(user) {
     if (existingMemberships && existingMemberships.length > 0) return false; // Already a member somewhere
 
     // Use RPC to securely find hubs with pending invites for this user
-    const { data: hubs, error: rpcErr } = await supabase
+    const { data: hubs, error: rpcErr } = await sbClient
       .rpc('check_pending_invites');
 
     if (rpcErr || !hubs || hubs.length === 0) return false;
@@ -2011,7 +2011,7 @@ async function processPendingInvites(user) {
 
     if (invite) {
       // Add user to hub
-      const { error: memErr } = await supabase
+      const { error: memErr } = await sbClient
         .from('hub_members')
         .insert({ hub_id: hub.hub_id, user_id: user.id, role: invite.role || 'editor' });
 
@@ -2019,7 +2019,7 @@ async function processPendingInvites(user) {
         // Remove from pending invites
         const updatedInvites = pendingInvites.filter(inv => inv.email.toLowerCase() !== user.email.toLowerCase());
         const updatedState = { ...hub.hub_state, _pendingInvites: updatedInvites };
-        await supabase
+        await sbClient
           .from('hub_state')
           .update({ state: updatedState })
           .eq('id', hub.hub_id);
